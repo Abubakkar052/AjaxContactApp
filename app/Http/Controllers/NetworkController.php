@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\network;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\EditRequest;
 use Validator;
 class NetworkController extends Controller
 {
@@ -26,15 +27,11 @@ class NetworkController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {     
-        $validator = Validator::make($request->all(), [
-            'name' =>'required' , 'min:4','max:8',
-            'code' => 'required|min:4|max:4',
-            'image' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:1000'
-        ]);
+     
+    public function store(EditRequest $request)
+    {      
     if(isset($request->id))
-    {  if($validator->passes())
+    {  if($request->validated())
         {   $codeCount = network::where('network_code', $request['code'])->first();
             $MatchCodeIdSame = network::where('network_code', $request['code'])->where('id', $request['id'])->first();
         if (!($codeCount) || $MatchCodeIdSame )
@@ -68,13 +65,9 @@ class NetworkController extends Controller
     }
     
     elseif(!isset($request->id))
-    {$validatorCreateNetwork = Validator::make($request->all(), [
-        'name' =>'required' , 'min:4','max:8',
-        'code' => 'required|min:4|max:4',
-        'image' => 'required|mimes:png,jpg,gif|max:1000'
-    ]);
+    { 
     
-        if ($validatorCreateNetwork->passes())
+        if ($request->validated())
  {
         $codeCount = network::where('network_code', $request['code'])->first(); 
         if (!($codeCount))

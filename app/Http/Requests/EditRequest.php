@@ -4,14 +4,14 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class addNetworkRequest extends FormRequest
+class EditRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,10 @@ class addNetworkRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' =>'required' , 'min:4','max:8',
+            'code' => 'required|min:4|max:4',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:1000'
+            
         ];
     }
 }
