@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\network;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Requests\EditRequest;
 use Validator;
+use App\Http\Requests\EditRequest;
 class NetworkController extends Controller
 {
     /**
@@ -27,12 +27,12 @@ class NetworkController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-     
     public function store(EditRequest $request)
     {      
+ 
     if(isset($request->id))
-    {  if($request->validated())
-        {   $codeCount = network::where('network_code', $request['code'])->first();
+    {     
+            $codeCount = network::where('network_code', $request['code'])->first();
             $MatchCodeIdSame = network::where('network_code', $request['code'])->where('id', $request['id'])->first();
         if (!($codeCount) || $MatchCodeIdSame )
         {   $network = network::where('id',$request->id)->first();
@@ -56,19 +56,13 @@ class NetworkController extends Controller
         }   
         else
         {return response()->json(['success'=>'Network code already exist unable to update']);}
-    }
-    else
-    {   
-        return response()->json(['error' => $validator->errors()]); 
-    }
+     
          
     }
     
     elseif(!isset($request->id))
     { 
-    
-        if ($request->validated())
- {
+   
         $codeCount = network::where('network_code', $request['code'])->first(); 
         if (!($codeCount))
         {     
@@ -86,11 +80,7 @@ class NetworkController extends Controller
         {
             return response()->json(['success'=>'Network code already exist']);
         }     
-    } 
-    else
-    {   
-        return response()->json(['error' => $validator->errors()]); 
-    }
+     
 }   
     }
 

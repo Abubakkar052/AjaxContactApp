@@ -3,6 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
+   
 
 class EditRequest extends FormRequest
 {
@@ -22,10 +25,12 @@ class EditRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' =>'required' , 'min:4','max:8',
-            'code' => 'required|min:4|max:4',
-            'image' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:1000'
+            'name' =>'required|min:4|max:8',
+            'code' => 'required|min:4|max:4', 
+             
             
         ];
     }
+     
+
 }

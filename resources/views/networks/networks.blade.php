@@ -304,7 +304,14 @@
                                 $('#submit').prop("disabled", false);
                             }
 
-                        }
+                        },                  
+                        error: function(err){ 
+        var errors = err.responseJSON;
+                 $.each(errors['errors'], function (key, value) {
+                    $('.' + key + '_err').text(value);
+                    $('#submit').prop("disabled", false);
+        });
+    }
                     });
                 } else {
                     alert('Please fill all fields.');
