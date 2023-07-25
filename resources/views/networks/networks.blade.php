@@ -1,9 +1,7 @@
 <style>
-
-    img
-    {
-        cursor: pointer!important;
-    } 
+    img {
+        cursor: pointer !important;
+    }
 
     td {
         background-color: #333 !important;
@@ -32,7 +30,11 @@
 @extends('layout.app')
 @section('main')
     <div class=" mt-2 text-center alert alert-info alert-block " style="display: none;" id="output">
+
     </div>
+    <div class=" mt-2 text-center alert alert-danger alert-block " style="display: none;" id="output_err">
+    </div>
+
     <div class="container mt-5">
         <div class="row d-flex justify-content-center text-center">
             <div class="col-sm-8 ">
@@ -58,25 +60,34 @@
                         <div class="form-control border-0 bg-transparent row d-flex justify-content-center">
 
                             <label for="">Network Image</label>
-                            <div id="oldImagePreview"  style="display: none"></div>
+                            <div id="oldImagePreview" style="display: none"></div>
                             <label id="newFile" class="mt-3" style="display: none">Choose New File(Not required)</label>
                             <input class="form-control w-50 " type="file" id="image" name="image">
                             <span id="imgCheck" class="image_err text-danger"></span>
                         </div>
-                        <div id="imagePreview"  ></div>
-                        <input class="btn btn-dark w-50 mt-3" id="submit" type="submit" value="Add Network">
+                        <div id="imagePreview"></div>
+                        >
+                        <div class="d-flex justify-content-center align-items-center">
+                            <input class="btn btn-dark w-50" id="submit" type="submit" value="Add Network">
+                            <button class="btn btn-dark w-50  " id="loading-buttons" disabled>
+                                <span class="spinner-grow spinner-grow-lg"></span>
+                                Loading..
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade  bd-example-modal-xl" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
+
+    </div>
+    <div class="modal fade  bd-example-modal-xl" id="exampleModal" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-              
+
                 <div class="modal-body">
-                    <img src=""   id="large-image" style="width: 100%; height:100%">
+                    <img src="" id="large-image" style="width: 100%; height:100%">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -84,6 +95,7 @@
             </div>
         </div>
     </div>
+
     <div class="d-flex justify-content-center align-items-center ">
         <div class="table-responsive-md">
             <table class="table table-dark table-hover mt-3 align-middle" style="background-color: #333;"
@@ -105,13 +117,14 @@
 
     </div>
 
+
     <script>
         function dispRef() {
             $.ajax({
                 url: "{{ route('network.display') }}",
                 type: 'GET',
                 success: function(data) {
-                    console.log(data);
+
                     if (data.networks.length > 0) {
                         $('#networksTable tr').slice(1).remove();
                         data.networks.forEach((element, key) => {
@@ -137,20 +150,21 @@
                 }
             });
 
-        } 
+        }
+
         function imgMod(key) {
 
             var id = "#";
             var src_value = $(id + key).attr('src');
             $("#large-image").attr('src', src_value);
         }
-        function formImage()
-        {
+
+        function formImage() {
             var src_value = $("#formImg").attr('src');
             $("#large-image").attr('src', src_value);
         }
-        function oldFormImg()
-        {
+
+        function oldFormImg() {
             var src_value = $("#oldFormImage").attr('src');
             $("#large-image").attr('src', src_value);
         }
@@ -169,7 +183,9 @@
             $("#newFile").css("display", "block");
             $("#oldImagePreview").css("display", "block");
             if (image) {
-                document.getElementById('oldImagePreview').innerHTML = '<img onclick="oldFormImg()" data-toggle="modal" data-target="#exampleModal" id="oldFormImage" src="contactImage/' + image +
+                document.getElementById('oldImagePreview').innerHTML =
+                    '<img onclick="oldFormImg()" data-toggle="modal" data-target="#exampleModal" id="oldFormImage" src="contactImage/' +
+                    image +
                     '" width="100px" height="100px"/>';
             };
 
@@ -178,7 +194,7 @@
         $(document).ready(function() {
             dispRef();
 
-
+            $("#loading-buttons").css("display", "none");
             $("#name").change(function() {
                 validateName();
             });
@@ -235,9 +251,9 @@
                     return false;
                 } else if (submitValue == "Add Network" && !allowedExtensions.exec(filePath)) {
                     $("#imgCheck").html("File must be an Image");
-                     $("#newFile").css("display", "block");
-                      
-                                
+                    $("#newFile").css("display", "block");
+
+
                     $("#image").val('');
                     return false;
                 } else {
@@ -248,7 +264,8 @@
                         reader.onload = function(e) {
                             document.getElementById(
                                     'imagePreview').innerHTML =
-                                '<img onclick="formImage()" data-toggle="modal" data-target="#exampleModal" id=formImg src=" ' + e.target.result +
+                                '<img onclick="formImage()" data-toggle="modal" data-target="#exampleModal" id=formImg src=" ' +
+                                e.target.result +
                                 '" width="100px" height="100px"/>';
                         };
 
@@ -263,10 +280,13 @@
                 let valCod = validateCode();
                 let valImg = validateImage();
                 if (valNam == true && valCod == true && valImg == true) {
+
                     var form = $("#form")[0];
                     var data = new FormData(form);
                     $('#submit').prop("disabled", true);
 
+                    $("#loading-buttons").css("display", "block");
+                    $("#submit").css("display", "none");
                     $.ajax({
                         type: "post",
                         url: "{{ route('network.store') }}",
@@ -274,44 +294,70 @@
                         processData: false,
                         contentType: false,
                         success: function(data) {
+                            $("#loading-buttons").css("display", "none");
+                            $("#submit").css("display", "block");
                             $('.name_err').text('');
                             $('.code_err').text('');
                             $('.image_err').text('');
                             $("#imagePreview").text('');
+                            $('#name').val('');
+                            $("#newFile").css("display", "none");
+                            $("#oldImagePreview").css("display", "none");
+
+                            $('#code').val('');
+                            $('#image').val('');
+                            $('#id').val('');
+                            $("#submit").attr({
+                                "value": "Add Network"
+                            });
+                            dispRef();
+
                             if ($.isEmptyObject(data.error)) {
 
-                                $("#output").css("display", "block");
                                 $('#submit').prop("disabled", false);
-                                $("#output").text(data.success);
-                                $('#name').val('');
-                                $("#newFile").css("display", "none");
-                                $("#oldImagePreview").css("display", "none");
+                                Swal.fire({
+                                    position: 'top-end',
+                                    icon: 'info',
+                                    title: data.success,
+                                    showConfirmButton: false,
+                                    timer: 4000
+                                })
 
-                                $('#code').val('');
-                                $('#image').val('');
-                                $('#id').val('');
-                                $("#submit").attr({
-                                    "value": "Add Network"
-                                });
-                                dispRef();
-
-                                setTimeout(function() {
-
-                                    $('#output').fadeOut();
-                                }, 3000);
-                            } else {
-                                printErrorMsg(data.error)
-                                $('#submit').prop("disabled", false);
                             }
 
-                        },                  
-                        error: function(err){ 
-        var errors = err.responseJSON;
-                 $.each(errors['errors'], function (key, value) {
-                    $('.' + key + '_err').text(value);
-                    $('#submit').prop("disabled", false);
-        });
-    }
+                        },
+                        error: function(err) {
+                            $('#name').val('');
+                            $("#newFile").css("display", "none");
+                            $("#oldImagePreview").css("display", "none");
+
+                            $('#code').val('');
+                            $('#image').val('');
+                            $('#id').val('');
+                            $("#submit").attr({
+                                "value": "Add Network"
+                            });
+                            dispRef();
+
+                            $("#loading-buttons").css("display", "none");
+                            $("#submit").css("display", "block");
+                            if (err.status == 403) {
+                                Swal.fire({
+                                    position: 'top-end',
+                                    icon: 'error',
+                                    title: 'You are not eligiable to perform this action',
+                                    showConfirmButton: false,
+                                    timer: 3000
+                                })
+                            } else {
+                                errors = err.responseJSON;
+                                $.each(errors['errors'], function(key, value) {
+                                    $('.' + key + '_err').text(value);
+
+                                });
+                            }
+                            $('#submit').prop("disabled", false);
+                        }
                     });
                 } else {
                     alert('Please fill all fields.');
@@ -319,11 +365,6 @@
             });
 
 
-            function printErrorMsg(msg) {
-                $.each(msg, function(key, value) {
-                    $('.' + key + '_err').text(value);
-                })
-            }
             $("#networksTable").on("click", ".deleteData", function() {
                 var result = confirm("Do you Really want to delete this network record?");
                 if (result == true) {
@@ -332,26 +373,31 @@
                         url: "delete-data/" + id,
                         type: 'GET',
                         success: function(data) {
-                            dispRef(); 
+                            $("#loading-buttons").css("display", "none");
+                            $("#submit").css("display", "block");
+                            dispRef();
                             $('#name').val('');
-                                $("#newFile").css("display", "none");
-                                $("#oldImagePreview").css("display", "none");
+                            $("#newFile").css("display", "none");
+                            $("#oldImagePreview").css("display", "none");
 
-                                $('#code').val('');
-                                $('#image').val('');
-                                $('#id').val('');
-                                $("#submit").attr({
-                                    "value": "Add Network"
-                                });
-                               
+                            $('#code').val('');
+                            $('#image').val('');
+                            $('#id').val('');
+                            $("#submit").attr({
+                                "value": "Add Network"
+                            });
+
                             $("#imagePreview").text('');
-                            $("#output").css("display", "block");
-                            $("#output").text(data.success);
-                            setTimeout(function() {
-                                $('#output').fadeOut();
-                            }, 3000);
+                            Swal.fire(
+
+                                'Deleted!',
+                                'the network has been deleted.',
+                                'success'
+                            )
                         },
                         error: function(err) {
+                            $("#loading-buttons").css("display", "none");
+                            $("#submit").css("display", "block");
                             console.log(err.responseText);
 
                         }

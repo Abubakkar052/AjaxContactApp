@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Validator;
 use App\Http\Requests\EditRequest;
+ 
 class NetworkController extends Controller
 {
     /**
@@ -28,11 +29,12 @@ class NetworkController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(EditRequest $request)
-    {      
- 
+    {
+        try {
+     $codeCount = network::where('network_code', $request['code'])->first();
     if(isset($request->id))
     {     
-            $codeCount = network::where('network_code', $request['code'])->first();
+           
             $MatchCodeIdSame = network::where('network_code', $request['code'])->where('id', $request['id'])->first();
         if (!($codeCount) || $MatchCodeIdSame )
         {   $network = network::where('id',$request->id)->first();
@@ -55,7 +57,7 @@ class NetworkController extends Controller
         return response()->json(['success'=>'Network Updated successfully']);
         }   
         else
-        {return response()->json(['success'=>'Network code already exist unable to update']);}
+        {return response()->json(['success'=>'Either you are trying to duplicate record or this record doesnot exist']);}
      
          
     }
@@ -63,8 +65,7 @@ class NetworkController extends Controller
     elseif(!isset($request->id))
     { 
    
-        $codeCount = network::where('network_code', $request['code'])->first(); 
-        if (!($codeCount))
+         if (!($codeCount))
         {     
             $imageName = time().'.'.$request->file('image')->extension();
             $request->image->move(public_path('/contactImage'),$imageName);           
@@ -81,33 +82,38 @@ class NetworkController extends Controller
             return response()->json(['success'=>'Network code already exist']);
         }     
      
-}   
-    }
+    }   
+        } catch (\Throwable $th) {
+            return response()->json(['error'=> $th->getMessage]);
+        }      
 
-    /**
-     * Display the specified resource.
-     */
+}
+
     public function display()
     {   
         $networks = network::all();
         return response()->json(['networks'=> $networks]);
-        //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function delete($id)
-    {
-       $network =  network::find($id);
-       $image_path = public_path('contactImage/' .$network->image);
-       if(file_exists($image_path))
-       {
-              unlink($image_path);
-              $network->delete();
-       }
-       $network->delete();
-        return response()->json(['success'=>'Network record deleted!!!']);
+    { 
+        if (network::where('id', $id)->exists())
+        {
+            $network =  network::find($id);
+            $image_path = public_path('contactImage/' .$network->image);
+            if(file_exists($image_path))
+            {
+                   unlink($image_path);
+                   $network->delete();
+            }
+             $network->delete();
+             return response()->json(['success'=>'Network record deleted!!!']);
+        }
+        else
+        {
+            return response()->json(['success'=>'Unable to Delete, Network Record Does Not Exist!!!']);
+        }
+       
     }
 
     /**
